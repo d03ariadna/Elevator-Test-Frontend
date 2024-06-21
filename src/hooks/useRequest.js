@@ -26,7 +26,7 @@ export const useRequest = () => {
     const id = Date.now();
 
     e.preventDefault();
-    setRequests([...requests, { id: id, origin: '', destination: '' }])
+    setRequests([...requests, { id: id, origin: '', destination: '', weight: '', checked: false}])
   };
 
   /* This function is used to remove a request.
@@ -54,7 +54,9 @@ export const useRequest = () => {
         return {
           ...request,
           origin: req.origin,
-          destination: req.destination
+          destination: req.destination,
+          weight: req.weight === '' ? 0 : parseInt(req.weight),
+          checked: req.checked
         }
       }
       return request
