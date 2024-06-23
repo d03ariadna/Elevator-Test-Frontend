@@ -10,6 +10,7 @@ import React, { useState } from 'react'
   * Returns the Exceptions component.
   */
 export const Exceptions = ({ requests, onSubmit }) => {
+
     
 	const [maintenance, setMaintenance] = useState('');
 	const [alarm, setAlarm] = useState('');

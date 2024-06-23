@@ -3,7 +3,7 @@
   * requests - Array of requests.
   * maintenance - Floors under maintenance.
   * alarm - Floors with alarm.
-  * floor - The floor where the elevator is standing.
+  * floors - Array of initial floor of each elevator.
   * setError - Function to set the error message.
   * 
   *
@@ -11,17 +11,18 @@
   */
 
 // Description: This file contains the function that validates the form and fetches the elevator path from the server.
-export const validateForm = async (requests, maintenance, alarm, floor, setError) => {
+export const validateForm = async (requests, maintenance, alarm, floors, setError) => {
     
-	floor = parseInt(floor);
+	floors = floors.map(floor => parseInt(floor));
 	const disabledFloors = maintenance || alarm ? lookDisabledFloors(maintenance, alarm) : [];
 	
 	const requestsValidated = validateRequests(requests, disabledFloors, setError);
 	// console.log('Requests: ', requestsValidated);
 	if (!requestsValidated || requestsValidated.length === 0) {
 		console.log('Not valid');
-		return []; // Si la validación falla, termina la función.
+		return; // Si la validación falla, termina la función.
 	}
+
     
 	
 	try {
@@ -30,7 +31,7 @@ export const validateForm = async (requests, maintenance, alarm, floor, setError
 			headers: {
 					'Content-Type': 'application/json'
 			},
-			body: JSON.stringify({ requests: requestsValidated, state: floor })
+			body: JSON.stringify({ requests: requestsValidated, state: floors })
 		});
 
 		if (!response.ok) {
@@ -41,12 +42,14 @@ export const validateForm = async (requests, maintenance, alarm, floor, setError
 
 		const { path } = await response.json();
 		
+		
+		//return [1, 2, 3];
 		return path;
 
 	} catch (error) {
 		console.error('Error fetching elevator path:', error);
 		setError(error.message);
-		return []; // Retorna sin un path si hay un error.
+		return; // Retorna sin un path si hay un error.
 	}
     
 
@@ -67,6 +70,7 @@ export const validateForm = async (requests, maintenance, alarm, floor, setError
 const validateRequests = (requests, disabledFloors, setError) => {
 
 	// Check if there are requests
+	console.log(requests)
 	for (let request of requests) {
 		if (request.origin === '' || request.destination === '') {
 			setError('All requests must have an origin and a destination');
@@ -83,9 +87,17 @@ const validateRequests = (requests, disabledFloors, setError) => {
 			}, 2000);
 			return;
 
+		} else if(request.weight === 0) {
+			setError('All requests must have a weight');
+			setTimeout(() => {
+				setError('');
+			}, 2000);
+			return;
+			
 		}
 	}
 
+	// Filter the requests that are not in disabled floors
 	const filteredRequests = requests.filter(request => {
 			return (!disabledFloors.includes(request.origin) && !disabledFloors.includes(request.destination)) 
 	});

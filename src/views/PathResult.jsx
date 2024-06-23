@@ -56,7 +56,6 @@ export const PathResult = ({path, standFloor, setStandFloor}) => {
 
 	return (
 		<div>
-			<h4>Path</h4>
 			<hr />
 				
 			<PathInfo path={path} />
